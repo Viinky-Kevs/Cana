@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+.topnav {
+    overflow: hidden;
+    background-color: #6d952e;
+}
+
+.topnav a {
+    float: left;
+    display: block;
+    color: #f2f2f2;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.sidenav-nav {
+    list-style: none;
+    padding: 2px;
+    margin: 0;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sidenav-nav .sidenav-nav-item .sidenav-nav-link {
+    display: flex;
+    align-items: center;
+    height: 3rem;
+    color: #fff;
+    text-decoration: none;
+    transition: color .3s ease;
+    border-radius: 0.625rem;
+}
+.sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-icon {
+    font-size: 22px;
+    width: 2rem;
+    min-width: 2rem;
+    margin: 0 0.5rem;
+    text-align: center;
+}
+
+.sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-text {
+    margin-left: 1.5rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+.sidenav-nav .sidenav-nav-item:hover .sidenav-nav-link {
+    background-color: #fff;
+    color: black;
+}
+
+.active {
+    background-color: #fff;
+}
+
+.active .sidenav-link-icon,
+.active .sidenav-link-text {
+    color: black;
+}
