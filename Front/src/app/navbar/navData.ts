@@ -20,3 +20,10 @@ export const navbarData = [
         label: 'Iniciar sesión'
     }
 ];
+export const navbarGit = [
+    {
+        routerLink: 'github',
+        icon: 'fa fa-solid fa-code-branch',
+        label: 'Fuente'
+    }
+];

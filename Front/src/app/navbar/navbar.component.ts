@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { navbarData } from './navData';
+import { navbarData, navbarGit } from './navData';
 
 @Component({
   selector: 'app-navbar',
@@ -9,6 +9,7 @@ import { navbarData } from './navData';
 export class NavbarComponent implements OnInit{
 
   navData = navbarData;
+  navGit = navbarGit;
   screenWidth = 0;
 
   ngOnInit(): void {
