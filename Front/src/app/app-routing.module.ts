@@ -11,7 +11,7 @@ const routes: Routes = [
   { path: 'map', component: MapComponent },
   { path: 'gee', component: GeeComponent },
   { path: 'upload', component: UploadComponent },
-  { path: 'user', component: UserComponent }
+  { path: 'user', component: UserComponent },
 ];
 
 @NgModule({

@@ -10,19 +10,32 @@
     display: block;
     color: #f2f2f2;
     text-align: center;
-    padding: 14px 16px;
+    padding: 14px 18px;
     text-decoration: none;
 }
 
 .sidenav-nav {
     list-style: none;
     padding: 2px;
-    margin: 0;
+    margin: 3px;
     align-items: center;
     cursor: pointer;
 }
 
-.sidenav-nav .sidenav-nav-item .sidenav-nav-link {
+.sidenav-nav-1 {
+    list-style: none;
+    top: -10px;
+    margin: 3px;
+    align-items: center;
+    cursor: pointer;
+}
+
+.sidenav-nav .sidenav-nav-item {
+    width: 90%;
+}
+
+.sidenav-nav .sidenav-nav-item .sidenav-nav-link, 
+.sidenav-nav-1 .sidenav-nav-item .sidenav-nav-link{
     display: flex;
     align-items: center;
     height: 3rem;
@@ -31,20 +44,23 @@
     transition: color .3s ease;
     border-radius: 0.625rem;
 }
-.sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-icon {
+.sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-icon,
+.sidenav-nav-1 .sidenav-nav-item .sidenav-nav-link .sidenav-link-icon {
     font-size: 22px;
-    width: 2rem;
+    width: 1.5rem;
     min-width: 2rem;
     margin: 0 0.5rem;
     text-align: center;
 }
 
-.sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-text {
+.sidenav-nav .sidenav-nav-item .sidenav-nav-link .sidenav-link-text,
+.sidenav-nav-1 .sidenav-nav-item .sidenav-nav-link .sidenav-link-text {
     margin-left: 1.5rem;
     font-family: 'Poppins', sans-serif;
 }
 
-.sidenav-nav .sidenav-nav-item:hover .sidenav-nav-link {
+.sidenav-nav .sidenav-nav-item:hover .sidenav-nav-link,
+.sidenav-nav-1 .sidenav-nav-item:hover .sidenav-nav-link {
     background-color: #fff;
     color: black;
 }
