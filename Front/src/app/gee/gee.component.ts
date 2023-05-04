@@ -22,7 +22,7 @@ export class GeeComponent implements OnInit {
 
     this.http.get('http://127.0.0.1:5000/geedata').subscribe((response) => {
       this.geedata = JSON.parse(response.toString()).data
-      console.log(this.geedata)
+      console.log('Data recived from Flask')
     });
 
 

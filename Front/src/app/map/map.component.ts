@@ -1,9 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Injectable, OnInit } from '@angular/core';
 import { take } from 'rxjs';
 import { GeolocationService } from '@ng-web-apis/geolocation';
 import "leaflet-draw";
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+
+@Injectable({
+  providedIn: 'root'
+})
 
 @Component({
   selector: 'app-map',
@@ -19,7 +24,7 @@ export class MapComponent implements OnInit {
   maker: L.Marker<any> | undefined;
 
 
-  constructor(private readonly geolocation$: GeolocationService) {
+  constructor(private readonly geolocation$: GeolocationService, private http: HttpClient) {
     this.numbers = [4.685347, -74.191439];
     geolocation$.pipe(take(1)).subscribe(position => {
       this.numbers[0] = position.coords.latitude;
@@ -27,7 +32,7 @@ export class MapComponent implements OnInit {
       this.LeafletMap?.setView(L.latLng(this.numbers[0], this.numbers[1]), 18);
     });
   }
-
+  
   ngOnInit(): void {
 
     var layer_1 = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -68,8 +73,8 @@ export class MapComponent implements OnInit {
 
     this.LeafletMap.on('pm:create', (e: any) => {
       var shape = e.layer;
-      alert('Ahora ve a guardar el lote y seguir con las instrucciones!')
-      console.log(shape._latlngs)
+      alert('Ahora ve a guardar el lote y seguir con las instrucciones!');
+      this.http.post('http://127.0.0.1:5000/get_coords', JSON.stringify(shape._latlngs)).subscribe(response => {console.log(response)});
     });
 
     this.LeafletMap.pm.setLang('es');

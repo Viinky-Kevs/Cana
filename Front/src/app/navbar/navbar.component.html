@@ -1,5 +1,7 @@
 <div class="topnav">
-    <a href="#"><img src="assets/logo.png" alt="" width="16px"></a>
+    <div class="img_cont">
+        <a href="#"><img src="assets/logo.png" alt="" width="16px"></a>
+    </div>
     <ul class="sidenav-nav">
         <li class="sidenav-nav-item" *ngFor="let data of navData">
             <a class="sidenav-nav-link" [routerLink]="[data.routerLink]" routerLinkActive="active"

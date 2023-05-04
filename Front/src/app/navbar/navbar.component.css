@@ -5,6 +5,10 @@
     background-color: #68a20a;
 }
 
+.topnav .img_cont {
+    background: #fff;
+}
+
 .topnav a {
     float: left;
     display: block;
