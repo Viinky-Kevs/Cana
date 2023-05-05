@@ -5,6 +5,11 @@ export const navbarData = [
         label: 'Mapa'
     },
     {
+        routerLink: 'analysis',
+        icon: 'fa fa-light fa-chart-network',
+        label: 'Análisis de datos'
+    },
+    {
         routerLink: 'gee',
         icon: 'fa fa-thin fa-cloud-sun-rain',
         label: 'Google Earth Engine'

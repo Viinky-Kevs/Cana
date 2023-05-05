@@ -12,6 +12,10 @@ import { BodyComponent } from './body/body.component';
 import { GeeComponent } from './gee/gee.component';
 import { UploadComponent } from './upload/upload.component';
 import { UserComponent } from './user/user.component';
+import { AnalysisComponent } from './analysis/analysis.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @NgModule({
   declarations: [
@@ -21,14 +25,18 @@ import { UserComponent } from './user/user.component';
     BodyComponent,
     GeeComponent,
     UploadComponent,
-    UserComponent
+    UserComponent,
+    AnalysisComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     LeafletModule,
     LeafletDrawModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MatProgressSpinnerModule,
+    MatTabsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -5,6 +5,7 @@ import "leaflet-draw";
 import * as L from 'leaflet';
 import '@geoman-io/leaflet-geoman-free';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -24,7 +25,7 @@ export class MapComponent implements OnInit {
   maker: L.Marker<any> | undefined;
 
 
-  constructor(private readonly geolocation$: GeolocationService, private http: HttpClient) {
+  constructor(private readonly geolocation$: GeolocationService, private http: HttpClient, private router: Router) {
     this.numbers = [4.685347, -74.191439];
     geolocation$.pipe(take(1)).subscribe(position => {
       this.numbers[0] = position.coords.latitude;
@@ -74,7 +75,8 @@ export class MapComponent implements OnInit {
     this.LeafletMap.on('pm:create', (e: any) => {
       var shape = e.layer;
       alert('Ahora ve a guardar el lote y seguir con las instrucciones!');
-      this.http.post('http://127.0.0.1:5000/get_coords', JSON.stringify(shape._latlngs)).subscribe(response => {console.log(response)});
+      //this.http.post('http://127.0.0.1:5000/get_coords', JSON.stringify(shape._latlngs)).subscribe(response => {console.log(response)});
+      this.router.navigate(['/analysis'], { state: { coordinatesPolygon: shape._latlngs }})
     });
 
     this.LeafletMap.pm.setLang('es');

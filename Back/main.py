@@ -1,9 +1,11 @@
 import warnings
-import itertools
 import numpy as np
 import pandas as pd
+import datetime as dt
+import requests as rq
 import geopandas as gpd
 import statsmodels.api as sm
+from datetime import datetime
 from flask_cors import CORS
 from json import loads, dumps
 from shapely.geometry import mapping
@@ -38,7 +40,7 @@ def get():
             
     return jsonify(data_to_send)
 
-@app.route('/get_coords', methods=['POST'])
+@app.route('/get_coords', methods=['POST', 'GET'])
 def post():
     coord = request.data
     data = coord.decode('UTF-8')
@@ -86,122 +88,28 @@ def post():
                     cluster_azucar.append(cana_a['clusters'].iloc[j])
     
     estaciones = pd.read_csv('./data_estaciones/data_estaciones.csv')
-
+    
     if len(cluster_azucar) != 0:
         print(f'Azucar {cluster_azucar[0]}')
-        estaciones = estaciones[estaciones['cluster'] == cluster_azucar[0]]
-        data = pd.read_csv('./data_estaciones/data_temp_col.csv')
-        data = data.rename(columns={'obs_values': 'temp', 'Date':'date', 'X':'lon', 'Y':'lat'})
-        df = data[data['temp'] >= 0]
-        df['date'] = pd.to_datetime(df['date'], 
-                                    format = '%Y-%m', 
-                                    exact=False, 
-                                    infer_datetime_format=False, 
-                                    errors='ignore')
-        df['lat'], df['lon'] = df['lat'].astype(float), df['lon'].astype(float)
-        df = df[df['ID'].isin(estaciones['CODIGO'].unique().tolist())]
-        df = df.reset_index(drop=True)
-        df = df.groupby(['date'])['temp'].mean().reset_index().round(2)
-        tdi = pd.DatetimeIndex(df['date'])
-        df.set_index(tdi, inplace=True)
-        data_temp = df[['temp']]
-
-        p = range(0,3)
-        d = range(1,2)
-        q = range(0,3)
-        pdq = list(itertools.product(p, d, q))
-        seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(p, d, q))]
-
-        parametros = []
-        AIC = []
-
-        for param in pdq:
-            for param_seasonal in seasonal_pdq:
-                try:
-                    mod = sm.tsa.statespace.SARIMAX(data_temp,
-                                                    order=param,
-                                                    seasonal_order=param_seasonal,
-                                                    enforce_stationarity=False,
-                                                    enforce_invertibility=False)
-                    results = mod.fit(disp=False)
-                    parametros.append((param, param_seasonal))
-                    AIC.append(results.aic)
-                except:
-                    continue
-            
-        model = sm.tsa.statespace.SARIMAX(data_temp['temp'], 
-                                        order=parametros[AIC.index(min(AIC))][0],
-                                        seasonal_order=parametros[AIC.index(min(AIC))][1])
-        results = model.fit(disp=False)
-
-        pred_date = [data_temp.index[-1] + DateOffset(months=x)for x in range(0,48)]
-        pred_date = pd.DataFrame(index = pred_date[1:],columns=data_temp.columns)
-        data_temp_final = pd.concat([data_temp,pred_date])
-        data_op = results.predict(start = (len(data_temp) - 12),end=(len(data_temp) + 48),dynamic=True)
-        data_forecast = pd.Series(data_op.tolist(), 
-                                  index = data_temp_final.index[(len(data_temp_final) - len(data_op)):], 
-                                  name='forecast')
-        data_temp_final = data_temp_final.join(data_forecast)
-        print(data_temp_final)
     
     if len(cluster_panela) != 0:
         print(f'Panela {cluster_panela[0]}')
-        estaciones = estaciones[estaciones['cluster'] == cluster_panela[0]]
-        data = pd.read_csv('./data_estaciones/data_temp_col.csv')
-        data = data.rename(columns={'obs_values': 'temp', 'Date':'date', 'X':'lon', 'Y':'lat'})
-        df = data[data['temp'] >= 0]
-        df['date'] = pd.to_datetime(df['date'], 
-                                    format = '%Y-%m', 
-                                    exact=False, 
-                                    infer_datetime_format=False, 
-                                    errors='ignore')
-        df['lat'], df['lon'] = df['lat'].astype(float), df['lon'].astype(float)
-        df = df[df['ID'].isin(estaciones['CODIGO'].unique().tolist())]
-        df = df.reset_index(drop=True)
-        df = df.groupby(['date'])['temp'].mean().reset_index().round(2)
-        tdi = pd.DatetimeIndex(df['date'])
-        df.set_index(tdi, inplace=True)
-        data_temp = df[['temp']]
 
-        p = range(0,3)
-        d = range(1,2)
-        q = range(0,3)
-        pdq = list(itertools.product(p, d, q))
-        seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(p, d, q))]
+    locations = [(lat, lon)]
+    dates = [19810101, str(datetime.now().strftime('%Y-%m-%d')).replace('-','')]
+    base_url = r"https://power.larc.nasa.gov/api/temporal/daily/point?parameters=RH2M,T2MDEW&community=RE&longitude={longitude}&latitude={latitude}&start={startdate}&end={enddate}&format=JSON"
 
-        parametros = []
-        AIC = []
+    d = []
+    for latitude, longitude in locations:
+        api_request_url = base_url.format(longitude=longitude, latitude=latitude, startdate = dates[0], enddate = dates[1])
+        response = rq.get(url=api_request_url, verify=True, timeout=30.00)
+        d.append(response.json())
 
-        for param in pdq:
-            for param_seasonal in seasonal_pdq:
-                try:
-                    mod = sm.tsa.statespace.SARIMAX(data_temp,
-                                                    order=param,
-                                                    seasonal_order=param_seasonal,
-                                                    enforce_stationarity=False,
-                                                    enforce_invertibility=False)
-                    results = mod.fit(disp=False)
-                    parametros.append((param, param_seasonal))
-                    AIC.append(results.aic)
-                except:
-                    continue
-            
-        model = sm.tsa.statespace.SARIMAX(data_temp['temp'], 
-                                        order=parametros[AIC.index(min(AIC))][0],
-                                        seasonal_order=parametros[AIC.index(min(AIC))][1])
-        results = model.fit(disp=False)
-
-        pred_date = [data_temp.index[-1] + DateOffset(months=x)for x in range(0,48)]
-        pred_date = pd.DataFrame(index = pred_date[1:],columns=data_temp.columns)
-        data_temp_final = pd.concat([data_temp,pred_date])
-        data_op = results.predict(start = (len(data_temp) - 12),
-                                  end = (len(data_temp) + 48),dynamic=True)
-        data_forecast = pd.Series(data_op.tolist(), 
-                                  index=data_temp_final.index[(len(data_temp_final) - len(data_op)):], 
-                                  name='forecast')
-        data_temp_final = data_temp_final.join(data_forecast)
-        print(data_temp_final)
-    
+    data_pw_ini = pd.DataFrame(d[0]['properties']['parameter'])
+    data_pw_ini['fecha'] = data_pw_ini.index
+    data_pw_ini = data_pw_ini.reset_index(drop=True)
+    data_pw_ini = data_pw_ini[data_pw_ini['RH2M'] >= 0]
+    print(data_pw_ini)
 
     return jsonify({'message': 'Data recived'})
 
