@@ -91,9 +91,11 @@ def post():
     
     if len(cluster_azucar) != 0:
         print(f'Azucar {cluster_azucar[0]}')
+        data_temp_a = pd.read_csv(f'./data_estaciones/data_temp_cluster_{cluster_azucar[0]}.csv')
     
     if len(cluster_panela) != 0:
         print(f'Panela {cluster_panela[0]}')
+        data_temp_p = pd.read_csv(f'./data_estaciones/data_temp_cluster_{cluster_panela[0]}.csv')
 
     locations = [(lat, lon)]
     dates = [19810101, str(datetime.now().strftime('%Y-%m-%d')).replace('-','')]
@@ -109,9 +111,29 @@ def post():
     data_pw_ini['fecha'] = data_pw_ini.index
     data_pw_ini = data_pw_ini.reset_index(drop=True)
     data_pw_ini = data_pw_ini[data_pw_ini['RH2M'] >= 0]
-    print(data_pw_ini)
 
-    return jsonify({'message': 'Data recived'})
+    if (len(cluster_azucar) != 0) and (len(cluster_panela) != 0):
+        data_json_a = data_temp_a.to_json(orient='table')
+        parsed_a = loads(data_json_a)
+        data_to_send_a = dumps(parsed_a, indent=2)
+        data_json_p = data_temp_p.to_json(orient='table')
+        parsed_p = loads(data_json_p)
+        data_to_send_p = dumps(parsed_p, indent=2)
+        return jsonify(dta = data_to_send_a, 
+                        dtp = data_to_send_p)
+    elif (len(cluster_azucar) != 0) and (len(cluster_panela) == 0):
+        data_json_a = data_temp_a.to_json(orient='table')
+        parsed_a = loads(data_json_a)
+        data_to_send_a = dumps(parsed_a, indent=2)
+        return jsonify(dta = data_to_send_a)
+    elif (len(cluster_azucar) == 0) and (len(cluster_panela) != 0):
+        data_json_p = data_temp_a.to_json(orient='table')
+        parsed_p = loads(data_json_p)
+        data_to_send_p = dumps(parsed_p, indent=2)
+        return jsonify(dtp = data_to_send_p)
+    else:
+        return jsonify({'message':'Los datos no están dentro un cluster'})
+        
 
 if '__main__' == __name__:
     app.run(

@@ -1,3 +1,14 @@
 <div *ngIf="loading" class="loader">
     <mat-spinner></mat-spinner>
 </div>
+
+<div>
+    <mat-tab-group>
+        <mat-tab label="Caña Azucarera">
+            <canvas id="azucarTempChart"></canvas>
+        </mat-tab>
+        <mat-tab label="Caña Panelera">
+            <canvas #pTempChart></canvas>
+        </mat-tab>
+    </mat-tab-group>
+</div>
