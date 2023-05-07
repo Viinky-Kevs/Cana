@@ -21,3 +21,34 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.3);
 }
+
+.panela,
+.azucar {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.panela>div:first-child,
+.azucar>div:first-child {
+    flex: 0 0 30%;
+}
+
+.panela>div:last-child,
+.azucar>div:last-child {
+    flex: 0 0 70%;
+}
+
+.data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.mat-tab-label {
+    background: aqua;
+    color: blue;
+    width: 60px;
+    height: 50px;
+    font-size: 20px;
+}

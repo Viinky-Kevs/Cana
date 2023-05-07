@@ -1,11 +1,15 @@
 import { Component, Injectable, OnInit } from '@angular/core';
-import { take } from 'rxjs';
-import { GeolocationService } from '@ng-web-apis/geolocation';
-import "leaflet-draw";
-import * as L from 'leaflet';
-import '@geoman-io/leaflet-geoman-free';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { GeolocationService } from '@ng-web-apis/geolocation';
 import { Router } from '@angular/router';
+import { take } from 'rxjs';
+
+import '@geoman-io/leaflet-geoman-free';
+import * as L from 'leaflet';
+import "leaflet-draw";
+
+import { azucarData } from './c_cana';
+import { panelaData } from './c_panela';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +28,9 @@ export class MapComponent implements OnInit {
   drawControl: L.Control.Draw | undefined;
   maker: L.Marker<any> | undefined;
 
+  azucarClusters: any;
+  //panelaClusters: any;
+  
 
   constructor(private readonly geolocation$: GeolocationService, private http: HttpClient, private router: Router) {
     this.numbers = [4.685347, -74.191439];
@@ -45,15 +52,23 @@ export class MapComponent implements OnInit {
       attribution: '<a href="https://github.com/cyclosm/cyclosm-cartocss-style/releases" title="CyclOSM - Open Bicycle render">CyclOSM</a> | Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     });
 
+    var layer_3 = L.geoJSON(azucarData);
+    
+    var layer_4 = L.geoJSON(panelaData);
+
     this.LeafletMap = L.map("map", { layers: [layer_1] }).setView(L.latLng(this.numbers[0], this.numbers[1]), 10);
+    
 
     var baseMaps = {
       "Cartográfica": layer_1
     };
     var overLay = {
-      "Elevación": layer_2
+      "Elevación": layer_2,
+      "Clusters Caña de Azucar": layer_3,
+      "Clusters Caña de Panela": layer_4,
     }
 
+    
     L.control.layers(
       baseMaps,
       overLay).addTo(this.LeafletMap);

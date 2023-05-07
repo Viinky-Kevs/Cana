@@ -1,1 +1,6 @@
-<p>upload works!</p>
+<div>
+    <form>
+        <input type="file" (change)="onFileSelected($event)" accept=".tiff">
+    </form>
+    <canvas #canvas></canvas>
+</div>

@@ -1,12 +1,14 @@
 import warnings
+import itertools
 import numpy as np
 import pandas as pd
 import datetime as dt
 import requests as rq
 import geopandas as gpd
 import statsmodels.api as sm
-from datetime import datetime
+from pyproj import Geod
 from flask_cors import CORS
+from datetime import datetime
 from json import loads, dumps
 from shapely.geometry import mapping
 from flask import Flask, jsonify, request
@@ -59,6 +61,10 @@ def post():
         coords_cent.append((i['lat'], i['lng']))
     centroide = Centroid(coords_cent)
 
+    geod = Geod(ellps="WGS84")
+    poly = Polygon(coords_cent)
+    area_lote = abs(geod.geometry_area_perimeter(poly)[0])
+    
     cana_p = gpd.read_file('./data_shapefiles/Clusters_panela_thiessen v2.shp')
     cana_p = cana_p.sort_values(by=['clusters']).reset_index(drop=True)
     cana_a = gpd.read_file('./data_shapefiles/Clusters_cana_thiessen v2.shp')
@@ -92,10 +98,12 @@ def post():
     if len(cluster_azucar) != 0:
         print(f'Azucar {cluster_azucar[0]}')
         data_temp_a = pd.read_csv(f'./data_estaciones/data_temp_cluster_{cluster_azucar[0]}.csv')
+        data_prep_a = pd.read_csv(f'./data_estaciones/data_prep_cluster_{cluster_azucar[0]}.csv')
     
     if len(cluster_panela) != 0:
         print(f'Panela {cluster_panela[0]}')
         data_temp_p = pd.read_csv(f'./data_estaciones/data_temp_cluster_{cluster_panela[0]}.csv')
+        data_prep_p = pd.read_csv(f'./data_estaciones/data_prep_cluster_{cluster_panela[0]}.csv')
 
     locations = [(lat, lon)]
     dates = [19810101, str(datetime.now().strftime('%Y-%m-%d')).replace('-','')]
@@ -111,26 +119,121 @@ def post():
     data_pw_ini['fecha'] = data_pw_ini.index
     data_pw_ini = data_pw_ini.reset_index(drop=True)
     data_pw_ini = data_pw_ini[data_pw_ini['RH2M'] >= 0]
+    data_pw = data_pw_ini.copy()
+    data_pw['fecha'] = pd.to_datetime(data_pw['fecha'], format='%Y-%m-%d')
+    data_pw['fecha'] = data_pw['fecha'].dt.strftime('%Y-%m')
+    data_g = data_pw.groupby(['fecha']).mean().reset_index().round(2)
+    data_g = data_g.rename(columns={'RH2M':'HR', 'T2MDEW':'PR', 'fecha':'date'})
+
+    tdi = pd.DatetimeIndex(data_g['date'])
+    data_g.set_index(tdi, inplace=True)
+    data_hr = data_g[['HR']]
+    data_pr = data_g[['PR']]                
+    
+    model = sm.tsa.statespace.SARIMAX(data_hr['HR'], 
+                                    order=(1,1,2),
+                                    seasonal_order=(1,1,2,12))
+    results = model.fit(disp=False)
+
+    pred_date = [data_hr.index[-1]+ DateOffset(months=x)for x in range(0,20)]
+    pred_date = pd.DataFrame(index=pred_date[1:],columns=data_hr.columns)
+    data_hr_final = pd.concat([data_hr,pred_date])
+    data_op = results.predict(start=(len(data_hr) - 12),end=(len(data_hr) + 20),dynamic=True)
+    data_forecast = pd.Series(data_op.tolist(), index=data_hr_final.index[(len(data_hr_final) - len(data_op)):], name='forecast')
+    data_hr_final = data_hr_final.join(data_forecast)
+    data_hr_final.index.name= 'date'
+                  
+    model = sm.tsa.statespace.SARIMAX(data_pr['PR'], 
+                                    order=(1,1,2),
+                                    seasonal_order=(1,1,2,12))
+    results = model.fit(disp=False)
+
+    pred_date = [data_pr.index[-1]+ DateOffset(months=x)for x in range(0,20)]
+    pred_date = pd.DataFrame(index=pred_date[1:],columns=data_pr.columns)
+    data_pr_final = pd.concat([data_pr,pred_date])
+    data_op = results.predict(start=(len(data_pr) - 12),end=(len(data_pr) + 20),dynamic=True)
+    data_forecast = pd.Series(data_op.tolist(), index=data_pr_final.index[(len(data_pr_final) - len(data_op)):], name='forecast')
+    data_pr_final = data_pr_final.join(data_forecast)
+    data_pr_final.index.name= 'date'
 
     if (len(cluster_azucar) != 0) and (len(cluster_panela) != 0):
         data_json_a = data_temp_a.to_json(orient='table')
         parsed_a = loads(data_json_a)
         data_to_send_a = dumps(parsed_a, indent=2)
+
+        data_json_ap = data_prep_a.to_json(orient='table')
+        parsed_ap = loads(data_json_ap)
+        data_to_send_ap = dumps(parsed_ap, indent=2)
+
         data_json_p = data_temp_p.to_json(orient='table')
         parsed_p = loads(data_json_p)
         data_to_send_p = dumps(parsed_p, indent=2)
-        return jsonify(dta = data_to_send_a, 
-                        dtp = data_to_send_p)
+
+        data_json_pp = data_prep_p.to_json(orient='table')
+        parsed_pp = loads(data_json_pp)
+        data_to_send_pp = dumps(parsed_pp, indent=2)
+
+        data_json_ahr = data_hr_final.to_json(orient='table')
+        parsed_ahr = loads(data_json_ahr)
+        data_to_send_ahr = dumps(parsed_ahr, indent=2)
+
+        data_json_apr = data_pr_final.to_json(orient='table')
+        parsed_apr = loads(data_json_apr)
+        data_to_send_apr = dumps(parsed_apr, indent=2)
+
+        return jsonify(dta = data_to_send_a,
+                       dpa = data_to_send_ap,
+                       dtp = data_to_send_p,
+                       dpp = data_to_send_pp,
+                       dhra = data_to_send_ahr,
+                       dpra = data_to_send_apr,
+                       area = round(area_lote, 2))
+    
     elif (len(cluster_azucar) != 0) and (len(cluster_panela) == 0):
-        data_json_a = data_temp_a.to_json(orient='table')
-        parsed_a = loads(data_json_a)
-        data_to_send_a = dumps(parsed_a, indent=2)
-        return jsonify(dta = data_to_send_a)
+        data_json_at = data_temp_a.to_json(orient='table')
+        parsed_at = loads(data_json_at)
+        data_to_send_at = dumps(parsed_at, indent=2)
+
+        data_json_ap = data_prep_a.to_json(orient='table')
+        parsed_ap = loads(data_json_ap)
+        data_to_send_ap = dumps(parsed_ap, indent=2)
+
+        data_json_ahr = data_hr_final.to_json(orient='table')
+        parsed_ahr = loads(data_json_ahr)
+        data_to_send_ahr = dumps(parsed_ahr, indent=2)
+
+        data_json_apr = data_pr_final.to_json(orient='table')
+        parsed_apr = loads(data_json_apr)
+        data_to_send_apr = dumps(parsed_apr, indent=2)
+
+        return jsonify(dta = data_to_send_at,
+                       dpa = data_to_send_ap,
+                       dhra = data_to_send_ahr,
+                       dpra = data_to_send_apr,
+                       area = round(area_lote, 2))
+    
     elif (len(cluster_azucar) == 0) and (len(cluster_panela) != 0):
         data_json_p = data_temp_a.to_json(orient='table')
         parsed_p = loads(data_json_p)
         data_to_send_p = dumps(parsed_p, indent=2)
-        return jsonify(dtp = data_to_send_p)
+
+        data_json_pp = data_prep_p.to_json(orient='table')
+        parsed_pp = loads(data_json_pp)
+        data_to_send_pp = dumps(parsed_pp, indent=2)
+
+        data_json_ahr = data_hr_final.to_json(orient='table')
+        parsed_ahr = loads(data_json_ahr)
+        data_to_send_ahr = dumps(parsed_ahr, indent=2)
+
+        data_json_apr = data_pr_final.to_json(orient='table')
+        parsed_apr = loads(data_json_apr)
+        data_to_send_apr = dumps(parsed_apr, indent=2)
+
+        return jsonify(dtp = data_to_send_p,
+                       dpp = data_to_send_pp,
+                       dhra = data_to_send_ahr,
+                       dpra = data_to_send_apr,
+                       area = round(area_lote, 2))
     else:
         return jsonify({'message':'Los datos no están dentro un cluster'})
         
