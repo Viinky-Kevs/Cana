@@ -1,29 +1,47 @@
-import { Component, ElementRef, ViewChild, AfterViewInit } from '@angular/core';
-//import PSPDFKit from "pspdfkit";
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-upload',
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css']
 })
-export class UploadComponent implements AfterViewInit{
+export class UploadComponent {
 
-  @ViewChild('canvas') canvasRef: ElementRef | undefined;
-  private canvas: HTMLCanvasElement | undefined;
+  selectedFile: File | null = null;
+  imageUrl: any;
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  ngAfterViewInit(): void {
-      this.onFileSelected;
+  handleFileInput(event: Event) {
+    const inputElement = event.target as HTMLInputElement;
+    if (inputElement.files && inputElement.files.length) {
+      this.selectedFile = inputElement.files[0];
+    } else {
+      this.selectedFile = null;
+    }
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (!file) {
-      console.log(file)
+  uploadFile() {
+    if (!this.selectedFile) {
+      alert('Please select a file.');
       return;
     }
-    const reader = new FileReader();
-  }
 
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+
+    this.http.post('http://localhost:5000/get_tif', formData).subscribe(
+      (response: any) => {
+        alert('Archivo subido satisfactoriamente!');
+        this.imageUrl = 'data:image/tiff;base64,'+ response.image;
+        
+      },
+      (error) => {
+        console.error('Error uploading file:', error);
+        alert('Error uploading file. See console for details.');
+      }
+    );
+  }
+  
 }

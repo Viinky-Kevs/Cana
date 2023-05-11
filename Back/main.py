@@ -1,15 +1,18 @@
+import io
+import base64
 import warnings
-import itertools
+import rasterio
 import numpy as np
 import pandas as pd
-import datetime as dt
 import requests as rq
 import geopandas as gpd
 import statsmodels.api as sm
+import matplotlib.pyplot as plt
 from pyproj import Geod
 from flask_cors import CORS
 from datetime import datetime
 from json import loads, dumps
+from rasterio.plot import show as sh
 from shapely.geometry import mapping
 from flask import Flask, jsonify, request
 from shapely.geometry import Point, Polygon
@@ -42,7 +45,7 @@ def get():
             
     return jsonify(data_to_send)
 
-@app.route('/get_coords', methods=['POST', 'GET'])
+@app.route('/get_coords', methods=['POST'])
 def post():
     coord = request.data
     data = coord.decode('UTF-8')
@@ -213,7 +216,7 @@ def post():
                        area = round(area_lote, 2))
     
     elif (len(cluster_azucar) == 0) and (len(cluster_panela) != 0):
-        data_json_p = data_temp_a.to_json(orient='table')
+        data_json_p = data_temp_p.to_json(orient='table')
         parsed_p = loads(data_json_p)
         data_to_send_p = dumps(parsed_p, indent=2)
 
@@ -236,7 +239,35 @@ def post():
                        area = round(area_lote, 2))
     else:
         return jsonify({'message':'Los datos no están dentro un cluster'})
-        
+
+@app.route('/get_tif', methods=['POST'])
+def data():
+    file = request.files['file']
+
+    image = rasterio.open(file)
+    
+    fig, ax = plt.subplots(1, figsize=(12, 20))
+
+    ax.imshow(image.read(1, masked=True), cmap='Greys_r')
+    plt.axis('off')
+    fig.subplots_adjust(
+        top=1.0,
+        bottom=0.0,
+        left=0.0,
+        right=1.0,
+        hspace=0.2,
+        wspace=0.2
+    )
+
+    buffer = io.BytesIO()
+
+    fig.savefig(buffer, format='png')
+    
+    buffer.seek(0)
+    image_base64 = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    
+    return jsonify({'image': image_base64})
+
 
 if '__main__' == __name__:
     app.run(

@@ -1,6 +1,18 @@
-<div>
-    <form>
-        <input type="file" (change)="onFileSelected($event)" accept=".tiff">
-    </form>
-    <canvas #canvas></canvas>
+
+<div class="container">
+    <div class="cont_f">
+        <div class="formulario">
+            <div class="cont">
+                <h2>Selecciona un archivo raster (.tiff)</h2>
+                <br>                
+                <form #formUpload (submit)="uploadFile()">
+                    <input type="file" name="file" (change)="handleFileInput($event)" accept=".tif">
+                    <button type="submit">Upload</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="map">
+        <img [src]="imageUrl" *ngIf="imageUrl">
+    </div>
 </div>

@@ -16,10 +16,13 @@ import { AnalysisComponent } from './analysis/analysis.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatIconModule } from '@angular/material/icon';
+import { FormsModule } from '@angular/forms';
 
 import * as PlotlyJS from 'plotly.js-dist-min';
 import { PlotlyModule } from 'angular-plotly.js';
 import { NgChartsModule } from 'ng2-charts';
+import { Ng2ImgMaxModule } from 'ng2-img-max';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -44,7 +47,10 @@ PlotlyModule.plotlyjs = PlotlyJS;
     MatProgressSpinnerModule,
     MatTabsModule,
     PlotlyModule,
-    NgChartsModule
+    NgChartsModule,
+    Ng2ImgMaxModule,
+    MatIconModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
