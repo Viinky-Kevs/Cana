@@ -88,6 +88,8 @@ export class AnalysisComponent implements OnInit {
           this.data_PR_a = dPRa.data;
         } catch(error){
           console.log('Not info dta');
+          alert('No hay información para caña azucarera');
+          this.loading = false;
         };
         try {
           const dtp = JSON.parse(response.dtp);
@@ -100,10 +102,10 @@ export class AnalysisComponent implements OnInit {
           this.data_PR_p = dPRp.data;
           
         } catch (error) {
-          console.log('Not info dta');
+          console.log('Not info dtp');
+          alert('No hay información para caña panelera');
+          this.loading = false;
         };
-        
-        //this.data = JSON.parse(response.toString()).data;
         
         try {
           this.dateTempAvalues = this.data_temp_a.map((d: { [x: string]: any;}) => d['date']);
@@ -485,7 +487,6 @@ export class AnalysisComponent implements OnInit {
           }
         }
       });
-
     });
   }  
 }
