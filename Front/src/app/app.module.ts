@@ -19,12 +19,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 
-import * as PlotlyJS from 'plotly.js-dist-min';
-import { PlotlyModule } from 'angular-plotly.js';
 import { NgChartsModule } from 'ng2-charts';
 import { Ng2ImgMaxModule } from 'ng2-img-max';
-
-PlotlyModule.plotlyjs = PlotlyJS;
 
 @NgModule({
   declarations: [
@@ -46,7 +42,6 @@ PlotlyModule.plotlyjs = PlotlyJS;
     BrowserAnimationsModule,
     MatProgressSpinnerModule,
     MatTabsModule,
-    PlotlyModule,
     NgChartsModule,
     Ng2ImgMaxModule,
     MatIconModule,

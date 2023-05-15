@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-upload',
@@ -10,6 +10,7 @@ export class UploadComponent {
 
   selectedFile: File | null = null;
   imageUrl: any;
+  loading = false;
 
   constructor(private http: HttpClient) { }
 
@@ -24,10 +25,10 @@ export class UploadComponent {
 
   uploadFile() {
     if (!this.selectedFile) {
-      alert('Please select a file.');
+      alert('Por favor selecciona un archivo raster (Ej. .tif)');
       return;
     }
-
+    this.loading = true;
     const formData = new FormData();
     formData.append('file', this.selectedFile);
 
@@ -35,7 +36,7 @@ export class UploadComponent {
       (response: any) => {
         alert('Archivo subido satisfactoriamente!');
         this.imageUrl = 'data:image/tiff;base64,'+ response.image;
-        
+        this.loading = false;
       },
       (error) => {
         console.error('Error uploading file:', error);

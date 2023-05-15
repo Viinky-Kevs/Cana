@@ -1,4 +1,6 @@
-
+<div *ngIf="loading" class="loader">
+    <mat-spinner></mat-spinner>
+</div>
 <div class="container">
     <div class="cont_f">
         <div class="formulario">
@@ -7,12 +9,13 @@
                 <br>                
                 <form #formUpload (submit)="uploadFile()">
                     <input type="file" name="file" (change)="handleFileInput($event)" accept=".tif">
-                    <button type="submit">Upload</button>
+                    <br>
+                    <button type="submit" class="but">Cargar archivo</button>
                 </form>
             </div>
         </div>
     </div>
     <div class="map">
-        <img [src]="imageUrl" *ngIf="imageUrl">
+        <img [src]="imageUrl" *ngIf="imageUrl" style="width: 50%;">
     </div>
 </div>

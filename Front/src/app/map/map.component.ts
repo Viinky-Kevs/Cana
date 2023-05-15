@@ -1,5 +1,5 @@
 import { Component, Injectable, OnInit } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { GeolocationService } from '@ng-web-apis/geolocation';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';

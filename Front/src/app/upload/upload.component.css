@@ -1,5 +1,3 @@
-@import url("https: //unpkg.com/leaflet@1.9.3/dist/leaflet.css");
-
 #map {
     height: 92vh;
     width: 100%;
@@ -32,6 +30,8 @@
 
 .map {
     border-radius: 15px;
+    display: flex;
+    justify-content: center;
 }
 
 img {
@@ -53,6 +53,10 @@ img {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.container .cont_f {
+    margin-top: 10%;
 }
 
 .loader {
