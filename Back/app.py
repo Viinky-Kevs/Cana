@@ -126,10 +126,11 @@ def post():
     
     data_pw_ini = data_pw_ini.reset_index(drop=True)
     data_pw_ini = data_pw_ini[data_pw_ini['RH2M'] >= 0]
+
     data_pw = data_pw_ini.copy()
-    #print(pd.to_datetime(data_pw['fecha'].astype(int), format='%Y%m%d'))
     data_pw['fecha'] = pd.to_datetime(data_pw['fecha'].astype(int), format='%Y%m%d')
     data_pw['fecha'] = data_pw['fecha'].dt.strftime('%Y-%m')
+    
     data_g = data_pw.groupby(['fecha']).mean().reset_index().round(2)
     data_g = data_g.rename(columns={'RH2M':'HR', 'T2MDEW':'PR', 'fecha':'date'})
 
