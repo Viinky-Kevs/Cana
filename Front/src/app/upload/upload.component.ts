@@ -11,6 +11,7 @@ export class UploadComponent {
   selectedFile: File | null = null;
   imageUrl: any;
   loading = false;
+  images = false;
 
   constructor(private http: HttpClient) { }
 
@@ -25,7 +26,7 @@ export class UploadComponent {
 
   uploadFile() {
     if (!this.selectedFile) {
-      alert('Por favor selecciona un archivo raster (Ej. .tif)');
+      alert('Por favor selecciona un archivo raster (Ejemplo .tif)');
       return;
     }
     this.loading = true;
@@ -37,6 +38,7 @@ export class UploadComponent {
         alert('Archivo subido satisfactoriamente!');
         this.imageUrl = 'data:image/tiff;base64,'+ response.image;
         this.loading = false;
+        this.images = true;
       },
       (error) => {
         console.error('Error uploading file:', error);

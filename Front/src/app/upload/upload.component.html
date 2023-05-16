@@ -5,7 +5,7 @@
     <div class="cont_f">
         <div class="formulario">
             <div class="cont">
-                <h2>Selecciona un archivo raster (.tiff)</h2>
+                <h2>Selecciona un archivo raster (.tif)</h2>
                 <br>                
                 <form #formUpload (submit)="uploadFile()">
                     <input type="file" name="file" (change)="handleFileInput($event)" accept=".tif">
@@ -16,6 +16,12 @@
         </div>
     </div>
     <div class="map">
-        <img [src]="imageUrl" *ngIf="imageUrl" style="width: 50%;">
+        <div>
+            <br>
+            <h1>Idoneidad para el desarrollo de la enfermedad</h1>
+            <br>
+            <img src="assets/Escala.png" style="width: 70%; height: 5%;" *ngIf="images">
+            <img [src]="imageUrl" *ngIf="imageUrl" style="width: 50%;">
+        </div>
     </div>
 </div>

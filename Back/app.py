@@ -254,7 +254,7 @@ def data():
     
     fig, ax = plt.subplots(1, figsize=(12, 20))
 
-    ax.imshow(image.read(1, masked=True), cmap='Greys_r')
+    ax.imshow(image.read(1, masked=True), cmap='RdYlGn_r')#'Greys_r')
     plt.axis('off')
     fig.subplots_adjust(
         top=1.0,
