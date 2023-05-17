@@ -6,7 +6,7 @@ services:
       context: ./Front
       dockerfile: Dockerfile
     ports:
-      - '4200:4200'
+      - '8080:8080'
 
   backend:
     build:
