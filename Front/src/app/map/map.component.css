@@ -1,6 +1,0 @@
-@import url("https://unpkg.com/leaflet@1.9.3/dist/leaflet.css");
-
-#map {
-    height: 94.2vh;
-    width: 100%;
-}
